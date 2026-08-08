@@ -7,23 +7,39 @@ st.set_page_config(page_title="Text to Speech", page_icon="🔊")
 st.title("Text to Speech Converter 🔊")
 st.write("Paste your paragraph below to generate an MP3.")
 
+# Dropdown for accents
+accent = st.selectbox(
+    "Select an English Accent:", 
+    ["American", "British", "Indian", "Australian"]
+)
+
 # Text area for user input
 text_input = st.text_area("Enter text here:", height=250)
+
+# Map the selected accent to the correct Google domain
+tld_map = {
+    "American": "com",
+    "British": "co.uk",
+    "Indian": "co.in",
+    "Australian": "com.au"
+}
 
 if st.button("Convert to MP3"):
     if text_input.strip():
         with st.spinner("Converting text to audio..."):
-            # Convert text to speech
-            tts = gTTS(text=text_input, lang='en', slow=False)
+            selected_tld = tld_map[accent]
+            
+            # Convert text to speech using the selected accent
+            tts = gTTS(text=text_input, lang='en', tld=selected_tld, slow=False)
             audio_file = "output.mp3"
             tts.save(audio_file)
-
+            
             st.success("Conversion successful!")
-
-            # Play the audio directly in the web app
+            
+            # Play the audio
             st.audio(audio_file, format="audio/mp3")
-
-            # Create a download button for the MP3
+            
+            # Download button
             with open(audio_file, "rb") as file:
                 st.download_button(
                     label="Download MP3",
